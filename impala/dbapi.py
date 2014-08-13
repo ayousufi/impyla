@@ -355,16 +355,19 @@ def TimestampFromTicks(ticks):
 
 Binary = buffer
 
+def _py_to_sql_string(value):
+    if value is None:
+        return 'NULL'
+    elif isinstance(value, basestring):
+        return "'" + _escape(value) + "'"
+    else:
+        return str(value)
+
 def _bind_parameters(operation, parameters):
     # inspired by MySQL Python Connector (conversion.py)
     string_parameters = {}
     for (name, value) in parameters.iteritems():
-        if value is None:
-            string_parameters[name] = 'NULL'
-        elif isinstance(value, basestring):
-            string_parameters[name] = "'" + _escape(value) + "'"
-        else:
-            string_parameters[name] = str(value)
+        string_parameters[name] = _py_to_sql_string(value)
     return operation % string_parameters
 
 def _escape(s):
